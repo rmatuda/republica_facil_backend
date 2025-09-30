@@ -67,3 +67,45 @@ def test_delete_user(client):
         'email': 'bob@example.com',
         'id': 1,
     }
+
+
+def test_update_user_not_found(client):
+    response = client.put(
+        '/users/999',  # ID inexistente
+        json={
+            'username': 'naoexiste',
+            'email': 'naoexiste@example.com',
+            'password': 'qualquer',
+        },
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_delete_user_not_found(client):
+    response = client.delete('/users/999')  # ID inexistente
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_read_user(client):
+    # Cria usuário
+    client.post(
+        '/users/',
+        json={
+            'username': 'uniqueuser',
+            'email': 'unique@example.com',
+            'password': 'senha',
+        },
+    )
+    # Busca usuário existente
+    response = client.get('/users/1')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'username': 'uniqueuser',
+        'email': 'unique@example.com',
+        'id': 1,
+    }
+
+
+def test_read_user_not_found(client):
+    response = client.get('/users/999')  # ID inexistente
+    assert response.status_code == HTTPStatus.NOT_FOUND
